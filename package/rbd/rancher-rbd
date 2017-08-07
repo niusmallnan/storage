@@ -16,7 +16,7 @@ init()
 create()
 {
     # The OPTS variable will be populated from the input JSON as a map of key/values
-    if [ -z "$['name']}" ]; then
+    if [ -z "${OPTS['name']}"  ]; then
         print_error "name is required"
     fi
 
