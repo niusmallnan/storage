@@ -204,6 +204,12 @@ unmount()
 {
     # ${MNT_DEST} will be set with the directory from which the filesystem should be unmounted
     local OUT
+    OUT=$(cat /proc/mounts | grep ${MNT_DEST})
+    if [ $? -ne 0 ]; then
+        print_success "unmounted"
+        exit 0
+    fi
+
     OUT=$(umount ${MNT_DEST} 2>&1)
     if [ $? -ne 0 ]; then
         if [ "$(echo ${OUT} | grep 'not mounted')" ]; then
