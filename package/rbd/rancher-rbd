@@ -47,15 +47,21 @@ delete()
     local UNLOCK_OUT
     local OUT
 
+    OUT=$(rbd info ${pool}/${name})
+    if [ $? -ne 0 ]; then
+        log_info ${device} "Device does not exist"
+        exit 0
+    fi
+
     locker_id=$(rbd lock list ${pool}/${name} --format json | jq -c .${RBD_LOCK} | jq -r .locker)
     if [ "${locker_id}" != "null" ]; then
         UNLOCK_OUT=$(rbd lock remove ${pool}/${name} ${RBD_LOCK} ${locker_id})
-        echo "rbd remove lock err when deleting vol: ${UNLOCK_OUT}"
+        log_info ${UNLOCK_OUT} "RBD remove lock err when deleting vol"
     fi
 
     device=$(rbd showmapped --format json | jq -c --arg n ${name} --arg p ${pool} '.[] | select(.name==$n and .pool==$p)' | jq -r .device)
     if [ ! -z "${device}" ]; then
-        log_info "Waiting for unmap: ${device}"
+        log_info ${device} "Waiting for unmap:"
         exit 0
     fi
 
